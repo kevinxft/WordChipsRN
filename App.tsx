@@ -5,17 +5,25 @@
  * @format
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {KeyboardAvoidingView, NativeBaseProvider} from 'native-base';
-import {HomeScreen, MyScreen, LoginScreen, Example} from './src/pages';
+import {NativeBaseProvider} from 'native-base';
+import {
+  EnterScreen,
+  BooksScreen,
+  MyScreen,
+  LoginScreen,
+  RegisterScreen,
+  Example,
+} from './src/pages';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {HomeIcon, MyIcon, iconType} from './src/icons';
-import {Platform} from 'react-native';
+import VIcon from 'react-native-vector-icons/Ionicons';
+import {useStore} from './src/store';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator();
 
 const config = {
   dependencies: {
@@ -23,37 +31,62 @@ const config = {
   },
 };
 
-const tabHomeIcon = ({size, color}: iconType) => (
-  <HomeIcon size={size} color={color} />
-);
-
-const tabMyIcon = ({color, size}: iconType) => (
-  <MyIcon size={size} color={color} />
-);
-
-const NoLoginStack = () => {
-  return <LoginScreen />;
+type TabIconType = {
+  size: number;
+  color: string;
+  focused: boolean;
 };
 
-const HomeStack = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Example" component={Example} />
-    </Stack.Navigator>
-  );
+type TabIconName = {
+  activeName: string;
+  inactiveName: string;
 };
 
-const TabStack = () => (
-  <Tab.Navigator initialRouteName="Login">
+const tabBarIcon = ({activeName, inactiveName}: TabIconName) => {
+  return ({size, color, focused}: TabIconType) =>
+    focused ? (
+      <VIcon name={activeName} size={size} color={color} />
+    ) : (
+      <VIcon name={inactiveName} size={size} color={color} />
+    );
+};
+
+const EnterStack = () => (
+  <HomeStack.Navigator initialRouteName="Enter">
+    <HomeStack.Screen
+      name="Enter"
+      component={EnterScreen}
+      options={{
+        title: '学习',
+      }}
+    />
+    <HomeStack.Screen
+      name="Books"
+      component={BooksScreen}
+      options={{
+        title: '单词本',
+      }}
+    />
+  </HomeStack.Navigator>
+);
+
+const UserTab = () => (
+  <Tab.Navigator
+    initialRouteName="Home"
+    tabBarOptions={{
+      activeTintColor: '#1c1917',
+      inactiveTintColor: '#78716c',
+    }}>
     <Tab.Screen
-      name="Login"
-      component={HomeStack}
+      name="Home"
+      component={EnterStack}
       options={{
         title: '学习',
         tabBarLabel: '学习',
-        tabBarIcon: tabHomeIcon,
+        tabBarIcon: tabBarIcon({
+          activeName: 'book',
+          inactiveName: 'book-outline',
+        }),
         headerShown: false,
       }}
     />
@@ -62,21 +95,36 @@ const TabStack = () => (
       component={MyScreen}
       options={{
         title: '我的',
-        tabBarIcon: tabMyIcon,
+        tabBarIcon: tabBarIcon({
+          activeName: 'happy',
+          inactiveName: 'happy-outline',
+        }),
       }}
     />
   </Tab.Navigator>
 );
 
 const App = () => {
-  const [isLogin, setLogin] = useState(false);
-  setTimeout(() => {
-    setLogin(false);
-  }, 2000);
+  const {isLogined, isLearning} = useStore();
   return (
     <NativeBaseProvider config={config}>
       <NavigationContainer>
-        {isLogin ? <TabStack /> : <NoLoginStack />}
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          {isLogined ? (
+            isLearning ? (
+              <Stack.Group>
+                <Stack.Screen name="Example" component={Example} />
+              </Stack.Group>
+            ) : (
+              <Stack.Screen name="User" component={UserTab} />
+            )
+          ) : (
+            <Stack.Group>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+            </Stack.Group>
+          )}
+        </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
   );

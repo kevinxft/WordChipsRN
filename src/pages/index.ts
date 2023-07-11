@@ -1,11 +1,12 @@
-export {HomeScreen} from './HomeScreen';
-export {LoginScreen} from './LoginScreen';
-export {MyScreen} from './MyScreen';
-export {RegisterScreen} from './RegisterScreen';
+export {EnterScreen} from './User/EnterScreen';
+export {LoginScreen} from './Login/LoginScreen';
+export {MyScreen} from './User/MyScreen';
+export {RegisterScreen} from './Login/RegisterScreen';
 export {Example} from './Example';
+export {BooksScreen} from './User/BooksScreen';
 
 export type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  My: undefined;
+  HomeScreen: undefined;
+  LoginScreen: undefined;
+  MyScreen: undefined;
 };
