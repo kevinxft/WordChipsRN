@@ -10,11 +10,13 @@ const WordBook = ({
   learned,
   toLearn,
 }: WorkBookType & {toLearn: (id: number) => void}) => (
-  <Box>
-    <Text>{name}</Text>
-    <Text>单行数量：{count}</Text>
-    <Text>巩困数量：{learned}</Text>
-    <Button onPress={() => toLearn(id)}>现在去学习</Button>
+  <Box w="80%" rounded="lg" bg="white" p="4" shadow={2}>
+    <Text mb="2">{name}</Text>
+    <Text mb="2">单词数量：{count}</Text>
+    <Text mb="4">已学数量：{learned}</Text>
+    <Button colorScheme="light" bg="light.900" onPress={() => toLearn(id)}>
+      现在去学习
+    </Button>
   </Box>
 );
 

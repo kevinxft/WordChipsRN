@@ -29,7 +29,7 @@ export const getLocalData = async (key: string) => {
   }
 };
 
-export const HTTP = {
+export const API = {
   async login(payload: loginType) {
     return instance.post('/auth/login', payload);
   },
@@ -37,6 +37,10 @@ export const HTTP = {
     return instance.post('/auth/register', payload);
   },
   async getWordBooks() {
+    return [];
+  },
+  async getWordsFromBook(id: number, amount: number = 10) {
+    console.log('id', id, 'amount', amount);
     return [];
   },
 };

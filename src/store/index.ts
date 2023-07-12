@@ -1,5 +1,13 @@
 import {create} from 'zustand';
-import {HTTP, loginType} from '../api';
+import {API, loginType} from '../api';
+import {fakeLearningWords} from './fakeData';
+
+export enum Familiarity {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  EXPERT = 3,
+}
 
 export type WorkBookType = {
   name: string;
@@ -8,25 +16,40 @@ export type WorkBookType = {
   learned: number;
 };
 
+export type WordType = {
+  name: string;
+  level: number;
+  sound: string;
+  desc: string;
+  toDelete: boolean;
+  isUpward?: boolean;
+  isMade?: boolean;
+  isReaded?: boolean;
+};
+
 type State = {
   isLogined: boolean;
   isLearning: boolean;
   isLoading: boolean;
   user: Object;
   wordBooks: WorkBookType[];
+  learningWords: any[];
 };
 
 type Actions = {
   login: (payload: loginType) => void;
   register: (payload: loginType) => void;
   toggleLearning: (flag: boolean) => void;
+  updateLearningWords: (words: any[]) => void;
+  reset: () => void;
 };
 
-export const useStore = create<State & Actions>(set => ({
+const initialState = {
   isLogined: true,
-  isLearning: false,
+  isLearning: true,
   isLoading: false,
   user: {},
+  learningWords: [...fakeLearningWords],
   wordBooks: [
     {
       id: 1,
@@ -35,24 +58,36 @@ export const useStore = create<State & Actions>(set => ({
       learned: 1000,
     },
   ],
+};
+
+export const useStore = create<State & Actions>(set => ({
+  ...initialState,
+  reset: () => set(initialState),
   login: async (payload: loginType) => {
     set({isLoading: true});
-    const res = await HTTP.login(payload);
-    console.log(res);
-    set({isLoading: false, isLogined: true, user: res});
+    const res = await API.login(payload);
+    set({isLoading: false, user: res});
   },
   register: async (payload: loginType) => {
     set({isLoading: true});
-    const res = await HTTP.register(payload);
+    const res = await API.register(payload);
     set({isLoading: false, user: res});
   },
   toggleLearning: (flag: boolean) => {
-    console.log(flag);
     set({isLearning: flag});
   },
   getWordBooks: async () => {
     set({isLoading: true});
-    const res = await HTTP.getWordBooks();
+    const res = await API.getWordBooks();
     set({isLoading: false, wordBooks: res});
+  },
+  updateLearningWords: async (learningWords: any[]) => {
+    set({learningWords});
+  },
+  getLearningWords: async (bookId: number, amount: number = 10) => {
+    set({isLoading: true});
+    const res = await API.getWordsFromBook(bookId, amount);
+    console.log(res);
+    set({isLoading: false, learningWords: fakeLearningWords});
   },
 }));
